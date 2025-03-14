@@ -21,24 +21,27 @@
                     Array.from(e.children[1].children).forEach(c => {
                         let scoreString = c.textContent.split('(').splice(-1)[0].split(')')[0];
                         let scoreParts = scoreString.split('/');
-                        if (scoreParts.length < 2) return;
+                        if (scoreParts.length != 2) return;
 
                         let obtained = parseFloat(scoreParts[0]);
                         let maximum = parseFloat(scoreParts[1]);
 
                         if (!isNaN(obtained) && !isNaN(maximum)) {
-                            if (e.firstChild.textContent.includes("Passed Tests")) passed += obtained;
+                            passed += obtained;
                             total += maximum;
                         }
                     });
                 }
             });
 
-            document.querySelectorAll(".submissionOutline--section").forEach(e => {
-                // too lazy to check if heading actually re-mounts on score list update so I'm just using this cuz it works
-                if (e.firstChild.textContent.includes("Passed Tests")) e.firstChild.textContent = `Passed Tests (${Math.round(passed * 100) / 100}/${Math.round(total * 100) / 100})`;
-                else if (e.firstChild.textContent.includes("Failed Tests")) e.firstChild.textContent = `Failed Tests (${Math.round((total - passed) * 100) / 100}/${Math.round(total * 100) / 100})`;
-            });
+            // scuffed af but it works
+            const agScoreDiv = document.querySelector("div.submissionOutlineHeader--totalPoints");
+            if (agScoreDiv && agScoreDiv.textContent) {
+                let scoreParts = agScoreDiv.textContent.split(' / ');
+                if (scoreParts.length != 2) return;
+                if (!scoreParts[0].includes('-')) return; // score already filled
+                agScoreDiv.textContent = (Math.round(passed * 100) / 100).toString() + ' / ' + scoreParts[1];
+            }
         }
         catch (error) {
             console.error("Tampermonkey score calculator script had a stroke: ", error);
